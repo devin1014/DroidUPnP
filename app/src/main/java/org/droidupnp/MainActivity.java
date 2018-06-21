@@ -49,7 +49,7 @@ import java.net.NetworkInterface;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
 
-public class Main extends AppCompatActivity
+public class MainActivity extends AppCompatActivity
 {
     private static final String TAG = "Main";
     private static final int REQUEST_READ_EXT_STORAGE = 12345;
@@ -60,7 +60,6 @@ public class Main extends AppCompatActivity
 
     private static Menu actionBarMenu = null;
 
-    private DrawerFragment mDrawerFragment;
     private CharSequence mTitle;
 
     private static ContentDirectoryFragment mContentDirectoryFragment;
@@ -112,14 +111,12 @@ public class Main extends AppCompatActivity
 
         if (getFragmentManager().findFragmentById(R.id.navigation_drawer) instanceof DrawerFragment)
         {
-            mDrawerFragment = (DrawerFragment)
-                    getFragmentManager().findFragmentById(R.id.navigation_drawer);
+            DrawerFragment mDrawerFragment = (DrawerFragment) getFragmentManager().findFragmentById(R.id.navigation_drawer);
+
             mTitle = getTitle();
 
             // Set up the drawer.
-            mDrawerFragment.setUp(
-                    R.id.navigation_drawer,
-                    (DrawerLayout) findViewById(R.id.drawer_layout));
+            mDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
         }
 
         if (Build.VERSION.SDK_INT >= 23)

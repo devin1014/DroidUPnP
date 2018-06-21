@@ -27,7 +27,6 @@ import org.droidupnp.model.upnp.IUpnpDevice;
 
 public class ServiceDiscoveryFragment extends UpnpDeviceListFragment
 {
-
     protected static final String TAG = "ServiceDiscoveryFragment";
 
     private IUpnpDevice selectedDevice;
@@ -41,7 +40,7 @@ public class ServiceDiscoveryFragment extends UpnpDeviceListFragment
     public void onListItemClick(ListView l, View v, int position, long id)
     {
         super.onListItemClick(l, v, position, id);
-        selectedDevice = list.getItem(position).getDevice();
+        selectedDevice = getListAdapter().getItem(position).getDevice();
 
         Log.w(TAG, "Device : " + selectedDevice.toString());
         selectedDevice.printService();

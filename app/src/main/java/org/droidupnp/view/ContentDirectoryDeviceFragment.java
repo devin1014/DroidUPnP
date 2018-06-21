@@ -24,7 +24,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 
-import org.droidupnp.Main;
+import org.droidupnp.MainActivity;
 import org.droidupnp.model.upnp.IUpnpDevice;
 
 import java.util.Observable;
@@ -44,8 +44,8 @@ public class ContentDirectoryDeviceFragment extends UpnpDeviceListFragment imple
     public void onActivityCreated(Bundle savedInstanceState)
     {
         super.onActivityCreated(savedInstanceState);
-        Main.upnpServiceController.getContentDirectoryDiscovery().addObserver(this);
-        Main.upnpServiceController.addSelectedContentDirectoryObserver(this);
+        MainActivity.upnpServiceController.getContentDirectoryDiscovery().addObserver(this);
+        MainActivity.upnpServiceController.addSelectedContentDirectoryObserver(this);
         Log.d(TAG, "onActivityCreated");
     }
 
@@ -53,17 +53,17 @@ public class ContentDirectoryDeviceFragment extends UpnpDeviceListFragment imple
     public void onDestroy()
     {
         super.onDestroy();
-        Main.upnpServiceController.getContentDirectoryDiscovery().removeObserver(this);
-        Main.upnpServiceController.delSelectedContentDirectoryObserver(this);
+        MainActivity.upnpServiceController.getContentDirectoryDiscovery().removeObserver(this);
+        MainActivity.upnpServiceController.delSelectedContentDirectoryObserver(this);
         Log.d(TAG, "onDestroy");
     }
 
     @Override
     protected boolean isSelected(IUpnpDevice device)
     {
-        if (Main.upnpServiceController != null && Main.upnpServiceController.getSelectedContentDirectory() != null)
+        if (MainActivity.upnpServiceController != null && MainActivity.upnpServiceController.getSelectedContentDirectory() != null)
         {
-            return device.equals(Main.upnpServiceController.getSelectedContentDirectory());
+            return device.equals(MainActivity.upnpServiceController.getSelectedContentDirectory());
         }
 
         return false;
@@ -78,21 +78,21 @@ public class ContentDirectoryDeviceFragment extends UpnpDeviceListFragment imple
     @Override
     protected void select(IUpnpDevice device, boolean force)
     {
-        Main.upnpServiceController.setSelectedContentDirectory(device, force);
+        MainActivity.upnpServiceController.setSelectedContentDirectory(device, force);
     }
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id)
     {
         super.onListItemClick(l, v, position, id);
-        select(list.getItem(position).getDevice());
-        Log.d(TAG, "Set contentDirectory to " + list.getItem(position));
+        select(getListAdapter().getItem(position).getDevice());
+        Log.d(TAG, "Set contentDirectory to " + getListAdapter().getItem(position));
     }
 
     @Override
     public void update(Observable observable, Object o)
     {
-        IUpnpDevice device = Main.upnpServiceController.getSelectedContentDirectory();
+        IUpnpDevice device = MainActivity.upnpServiceController.getSelectedContentDirectory();
         if (device == null)
         {
             if (getActivity() != null) // Visible
@@ -104,7 +104,7 @@ public class ContentDirectoryDeviceFragment extends UpnpDeviceListFragment imple
                     {
                         // Uncheck device
                         getListView().clearChoices();
-                        list.notifyDataSetChanged();
+                        getListAdapter().notifyDataSetChanged();
                     }
                 });
             }

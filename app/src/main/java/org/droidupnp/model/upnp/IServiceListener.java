@@ -25,7 +25,6 @@ import java.util.Collection;
 
 public interface IServiceListener
 {
-
     public void addListener(IRegistryListener registryListener);
 
     public void removeListener(IRegistryListener registryListener);

@@ -28,21 +28,25 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.android.support:appcompat-v7:27.1.1'
+
+    implementation project(':core')
+    implementation('com.android.support:appcompat-v7:27.1.1')
+    // Cling
+    implementation('org.fourthline.cling:cling-core:2.1.1')
+    implementation('org.fourthline.cling:cling-support:2.1.1')
+    implementation('org.eclipse.jetty:jetty-server:8.1.18.v20150929')
+    implementation('org.eclipse.jetty:jetty-servlet:8.1.18.v20150929')
+    implementation('org.eclipse.jetty:jetty-client:8.1.18.v20150929')
+    implementation('org.slf4j:slf4j-jdk14:1.7.14')
+
+    implementation('com.orhanobut:logger:2.2.0')
+    implementation('de.psdev.licensesdialog:licensesdialog:1.8.1') {
+        exclude module: 'support-v4'
+    }
+
+    //test
     testImplementation 'junit:junit:4.12'
     androidTestImplementation('com.android.support.test.espresso:espresso-core:3.0.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-
-    // Cling
-    implementation group: 'org.fourthline.cling', name: 'cling-core', version: '2.1.1'
-    implementation group: 'org.fourthline.cling', name: 'cling-support', version: '2.1.1'
-    implementation group: 'org.eclipse.jetty', name: 'jetty-server', version: '8.1.18.v20150929'
-    implementation group: 'org.eclipse.jetty', name: 'jetty-servlet', version: '8.1.18.v20150929'
-    implementation group: 'org.eclipse.jetty', name: 'jetty-client', version: '8.1.18.v20150929'
-    implementation group: 'org.slf4j', name: 'slf4j-jdk14', version: '1.7.14'
-
-    implementation('de.psdev.licensesdialog:licensesdialog:1.8.1') {
-        exclude module: 'support-v4'
-    }
 }

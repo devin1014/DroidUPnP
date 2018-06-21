@@ -21,14 +21,13 @@ package org.droidupnp.model.upnp;
 
 import android.util.Log;
 
-import org.droidupnp.Main;
+import org.droidupnp.MainActivity;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 public abstract class DeviceDiscovery
 {
-
     protected static final String TAG = "DeviceDiscovery";
 
     private final BrowsingRegistryListener browsingRegistryListener;
@@ -37,16 +36,16 @@ public abstract class DeviceDiscovery
 
     private final ArrayList<IDeviceDiscoveryObserver> observerList;
 
+    public DeviceDiscovery(IServiceListener serviceListener)
+    {
+        this(serviceListener, false);
+    }
+
     public DeviceDiscovery(IServiceListener serviceListener, boolean extendedInformation)
     {
         browsingRegistryListener = new BrowsingRegistryListener();
         this.extendedInformation = extendedInformation;
-        observerList = new ArrayList<IDeviceDiscoveryObserver>();
-    }
-
-    public DeviceDiscovery(IServiceListener serviceListener)
-    {
-        this(serviceListener, false);
+        observerList = new ArrayList<>();
     }
 
     public void resume(IServiceListener serviceListener)
@@ -59,9 +58,11 @@ public abstract class DeviceDiscovery
         serviceListener.removeListener(browsingRegistryListener);
     }
 
+    // ------------------------------------------------------------------------
+    // ---- IRegistryListener imp
+    // ------------------------------------------------------------------------
     public class BrowsingRegistryListener implements IRegistryListener
     {
-
         @Override
         public void deviceAdded(final IUpnpDevice device)
         {
@@ -101,8 +102,8 @@ public abstract class DeviceDiscovery
     {
         observerList.add(o);
 
-        final Collection<IUpnpDevice> upnpDevices = Main.upnpServiceController.getServiceListener()
-                .getFilteredDeviceList(getCallableFilter());
+        final Collection<IUpnpDevice> upnpDevices = MainActivity.upnpServiceController.getServiceListener().getFilteredDeviceList(getCallableFilter());
+
         for (IUpnpDevice d : upnpDevices)
         {
             o.addedDevice(d);
@@ -133,10 +134,8 @@ public abstract class DeviceDiscovery
     /**
      * Filter device you want to add to this device list fragment
      *
-     * @param device
-     *            the device to test
+     * @param device the device to test
      * @return add it or not
-     * @throws Exception
      */
     protected boolean filter(IUpnpDevice device)
     {
@@ -155,38 +154,26 @@ public abstract class DeviceDiscovery
 
     /**
      * Get a callable device filter
-     *
-     * @return
      */
     protected abstract ICallableFilter getCallableFilter();
 
     /**
      * Filter to know if device is selected
-     *
-     * @param d
-     * @return
      */
     protected abstract boolean isSelected(IUpnpDevice d);
 
     /**
      * Select a device
-     *
-     * @param device
      */
     protected abstract void select(IUpnpDevice device);
 
     /**
      * Select a device
-     *
-     * @param device
-     * @param force
      */
     protected abstract void select(IUpnpDevice device, boolean force);
 
     /**
      * Callback when device removed
-     *
-     * @param d
      */
     protected abstract void removed(IUpnpDevice d);
 }

@@ -56,7 +56,6 @@ public class DrawerFragment extends Fragment
     private ActionBarDrawerToggle mDrawerToggle;
 
     private DrawerLayout mDrawerLayout;
-    private View mDrawerView;
     private View mFragmentContainerView;
 
     private boolean mUserLearnedDrawer;
@@ -85,12 +84,9 @@ public class DrawerFragment extends Fragment
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState)
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        mDrawerView = inflater.inflate(
-                R.layout.device_fragment, container, false);
-        return mDrawerView;
+        return inflater.inflate(R.layout.device_fragment, container, false);
     }
 
     /**
@@ -191,6 +187,7 @@ public class DrawerFragment extends Fragment
         {
             return true;
         }
+
         return super.onOptionsItemSelected(item);
     }
 

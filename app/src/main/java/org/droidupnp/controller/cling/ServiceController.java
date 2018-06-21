@@ -69,8 +69,7 @@ public class ServiceController extends UpnpServiceController
 
         // This will start the UPnP service if it wasn't already started
         Log.d(TAG, "Start upnp service");
-        activity.bindService(new Intent(activity, UpnpService.class), upnpServiceListener.getServiceConnexion(),
-                Context.BIND_AUTO_CREATE);
+        activity.bindService(new Intent(activity, UpnpService.class), upnpServiceListener.getServiceConnexion(), Context.BIND_AUTO_CREATE);
     }
 
     @Override

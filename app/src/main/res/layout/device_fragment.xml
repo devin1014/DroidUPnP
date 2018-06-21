@@ -18,56 +18,56 @@
   along with DroidUPNP.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <LinearLayout
+    android:id="@+id/device_fragment"
+    style="@style/drawer"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/device_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:drawSelectorOnTop="false"
-    style="@style/drawer"
+    android:orientation="vertical"
     tools:context="org.droidupnp.DrawerFragment">
 
     <TextView
         android:id="@+id/label_contentDirectory"
+        style="@style/deviceListLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
-        android:text="@string/contentdirectory"
-        style="@style/deviceListLabel" />
+        android:text="@string/contentdirectory" />
 
     <View
+        style="@style/deviceListSeparator"
         android:layout_width="fill_parent"
-        android:layout_height="1dp"
-        style="@style/deviceListSeparator" />
+        android:layout_height="1dp" />
 
     <fragment
         android:id="@+id/ContentDirectoryDeviceFragment"
         android:name="org.droidupnp.view.ContentDirectoryDeviceFragment"
-        android:layout_weight="1"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
+        android:layout_weight="1"
         tools:layout="@layout/sub_device_fragment" />
 
     <TextView
         android:id="@+id/label_renderer"
+        style="@style/deviceListLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
-        android:text="@string/renderer"
-        style="@style/deviceListLabel" />
+        android:text="@string/renderer" />
 
     <View
+        style="@style/deviceListSeparator"
         android:layout_width="fill_parent"
-        android:layout_height="1dp"
-        style="@style/deviceListSeparator" />
+        android:layout_height="1dp" />
 
     <fragment
         android:id="@+id/RendererDeviceFragment"
         android:name="org.droidupnp.view.RendererDeviceFragment"
-        android:layout_weight="1"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
+        android:layout_weight="1"
         tools:layout="@layout/sub_device_fragment" />
 
 </LinearLayout>

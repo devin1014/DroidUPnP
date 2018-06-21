@@ -19,13 +19,12 @@
 
 package org.droidupnp.view;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 
-import org.droidupnp.Main;
+import org.droidupnp.MainActivity;
 import org.droidupnp.model.upnp.IUpnpDevice;
 
 import java.util.Observable;
@@ -33,7 +32,6 @@ import java.util.Observer;
 
 public class RendererDeviceFragment extends UpnpDeviceListFragment implements Observer
 {
-
     protected static final String TAG = "RendererDeviceFragment";
 
     public RendererDeviceFragment()
@@ -45,26 +43,26 @@ public class RendererDeviceFragment extends UpnpDeviceListFragment implements Ob
     public void onActivityCreated(Bundle savedInstanceState)
     {
         super.onActivityCreated(savedInstanceState);
-        Main.upnpServiceController.getRendererDiscovery().addObserver(this);
-        Main.upnpServiceController.addSelectedRendererObserver(this);
         Log.d(TAG, "onActivityCreated");
+        MainActivity.upnpServiceController.getRendererDiscovery().addObserver(this);
+        MainActivity.upnpServiceController.addSelectedRendererObserver(this);
     }
 
     @Override
     public void onDestroy()
     {
-        super.onDestroy();
-        Main.upnpServiceController.getRendererDiscovery().removeObserver(this);
-        Main.upnpServiceController.delSelectedRendererObserver(this);
         Log.d(TAG, "onDestroy");
+        MainActivity.upnpServiceController.getRendererDiscovery().removeObserver(this);
+        MainActivity.upnpServiceController.delSelectedRendererObserver(this);
+        super.onDestroy();
     }
 
     @Override
     protected boolean isSelected(IUpnpDevice device)
     {
-        if (Main.upnpServiceController != null && Main.upnpServiceController.getSelectedRenderer() != null)
+        if (MainActivity.upnpServiceController != null && MainActivity.upnpServiceController.getSelectedRenderer() != null)
         {
-            return device.equals(Main.upnpServiceController.getSelectedRenderer());
+            return device.equals(MainActivity.upnpServiceController.getSelectedRenderer());
         }
 
         return false;
@@ -79,43 +77,41 @@ public class RendererDeviceFragment extends UpnpDeviceListFragment implements Ob
     @Override
     protected void select(IUpnpDevice device, boolean force)
     {
-        Main.upnpServiceController.setSelectedRenderer(device, force);
+        MainActivity.upnpServiceController.setSelectedRenderer(device, force);
     }
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id)
     {
         super.onListItemClick(l, v, position, id);
-        select(list.getItem(position).getDevice());
-        Log.d(TAG, "Set renderer to " + list.getItem(position));
+        Log.d(TAG, "Set renderer to " + getListAdapter().getItem(position));
+        select(getListAdapter().getItem(position).getDevice());
     }
 
     @Override
     public void update(Observable observable, Object o)
     {
-        Activity a = getActivity();
-        if (a == null)
+        if (getActivity() != null)
         {
-            return;
-        }
-
-        a.runOnUiThread(new Runnable()
-        {
-            @Override
-            public void run()
+            getActivity().runOnUiThread(new Runnable()
             {
-                IUpnpDevice device = Main.upnpServiceController.getSelectedRenderer();
-                if (device == null)
+                @Override
+                public void run()
                 {
-                    // Uncheck device
-                    getListView().clearChoices();
-                    list.notifyDataSetChanged();
+                    IUpnpDevice device = MainActivity.upnpServiceController.getSelectedRenderer();
+
+                    if (device == null)
+                    {
+                        // Uncheck device
+                        getListView().clearChoices();
+                        getListAdapter().notifyDataSetChanged();
+                    }
+                    else
+                    {
+                        addedDevice(device);
+                    }
                 }
-                else
-                {
-                    addedDevice(device);
-                }
-            }
-        });
+            });
+        }
     }
 }

@@ -19,9 +19,9 @@
 -->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:paddingLeft="8dp"
     android:paddingRight="8dp">
 
@@ -30,14 +30,14 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:drawSelectorOnTop="false"
-        android:choiceMode="singleChoice" />
+        android:choiceMode="singleChoice"
+        android:drawSelectorOnTop="false" />
 
     <TextView
         android:id="@id/android:empty"
+        style="@style/deviceListLabel"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        style="@style/deviceListLabel"
         android:layout_marginTop="10dp"
         android:text="@string/device_list_empty" />
 

@@ -27,7 +27,7 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import org.droidupnp.Main;
+import org.droidupnp.MainActivity;
 import org.droidupnp.model.cling.CDevice;
 import org.droidupnp.model.cling.CRegistryListener;
 import org.droidupnp.model.mediaserver.MediaServer;
@@ -126,7 +126,7 @@ public class ServiceListener implements IServiceListener
                     // Local content directory
                     if (mediaServer == null)
                     {
-                        mediaServer = new MediaServer(Main.getLocalIpAddress(ctx), ctx);
+                        mediaServer = new MediaServer(MainActivity.getLocalIpAddress(ctx), ctx);
                         mediaServer.start();
                     }
                     else

@@ -40,7 +40,7 @@ import android.widget.Toast;
 
 import com.android.liuwei.droidupnp.R;
 
-import org.droidupnp.Main;
+import org.droidupnp.MainActivity;
 import org.droidupnp.model.upnp.CallableContentDirectoryFilter;
 import org.droidupnp.model.upnp.IContentDirectoryCommand;
 import org.droidupnp.model.upnp.IDeviceDiscoveryObserver;
@@ -80,7 +80,7 @@ public class ContentDirectoryFragment extends ListFragment implements Observer
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
-        Main.setContentDirectoryFragment(this);
+        MainActivity.setContentDirectoryFragment(this);
         super.onCreate(savedInstanceState);
     }
 
@@ -104,7 +104,7 @@ public class ContentDirectoryFragment extends ListFragment implements Observer
                 {
                     try
                     {
-                        Main.setSearchVisibility(contentDirectoryCommand != null && contentDirectoryCommand.isSearchAvailable());
+                        MainActivity.setSearchVisibility(contentDirectoryCommand != null && contentDirectoryCommand.isSearchAvailable());
                     }
                     catch (Exception e)
                     {
@@ -129,7 +129,7 @@ public class ContentDirectoryFragment extends ListFragment implements Observer
         @Override
         public void addedDevice(IUpnpDevice device)
         {
-            if (Main.upnpServiceController.getSelectedContentDirectory() == null)
+            if (MainActivity.upnpServiceController.getSelectedContentDirectory() == null)
             {
                 cdf.update();
             }
@@ -138,7 +138,7 @@ public class ContentDirectoryFragment extends ListFragment implements Observer
         @Override
         public void removedDevice(IUpnpDevice device)
         {
-            if (Main.upnpServiceController.getSelectedContentDirectory() == null)
+            if (MainActivity.upnpServiceController.getSelectedContentDirectory() == null)
             {
                 cdf.update();
             }
@@ -194,12 +194,12 @@ public class ContentDirectoryFragment extends ListFragment implements Observer
         setListAdapter(contentList);
 
         deviceObserver = new DeviceObserver(this);
-        Main.upnpServiceController.getContentDirectoryDiscovery().addObserver(deviceObserver);
+        MainActivity.upnpServiceController.getContentDirectoryDiscovery().addObserver(deviceObserver);
 
         // Listen to content directory change
-        if (Main.upnpServiceController != null)
+        if (MainActivity.upnpServiceController != null)
         {
-            Main.upnpServiceController.addSelectedContentDirectoryObserver(this);
+            MainActivity.upnpServiceController.addSelectedContentDirectoryObserver(this);
         }
         else
         {
@@ -208,8 +208,8 @@ public class ContentDirectoryFragment extends ListFragment implements Observer
 
         if (savedInstanceState != null
                 && savedInstanceState.getStringArray(STATE_TREE) != null
-                && Main.upnpServiceController.getSelectedContentDirectory() != null
-                && 0 == Main.upnpServiceController.getSelectedContentDirectory().getUID()
+                && MainActivity.upnpServiceController.getSelectedContentDirectory() != null
+                && 0 == MainActivity.upnpServiceController.getSelectedContentDirectory().getUID()
                 .compareTo(savedInstanceState.getString(STATE_CONTENTDIRECTORY)))
         {
             Log.i(TAG, "Restore previews state");
@@ -218,8 +218,8 @@ public class ContentDirectoryFragment extends ListFragment implements Observer
             tree = new LinkedList<>(Arrays.asList(savedInstanceState.getStringArray(STATE_TREE)));
             currentID = savedInstanceState.getString(STATE_CURRENT);
 
-            device = Main.upnpServiceController.getSelectedContentDirectory();
-            contentDirectoryCommand = Main.factory.createContentDirectoryCommand();
+            device = MainActivity.upnpServiceController.getSelectedContentDirectory();
+            contentDirectoryCommand = MainActivity.factory.createContentDirectoryCommand();
         }
 
         getListView().setOnItemLongClickListener(new AdapterView.OnItemLongClickListener()
@@ -266,8 +266,8 @@ public class ContentDirectoryFragment extends ListFragment implements Observer
     public void onDestroy()
     {
         super.onDestroy();
-        Main.upnpServiceController.delSelectedContentDirectoryObserver(this);
-        Main.upnpServiceController.getContentDirectoryDiscovery().removeObserver(deviceObserver);
+        MainActivity.upnpServiceController.delSelectedContentDirectoryObserver(this);
+        MainActivity.upnpServiceController.getContentDirectoryDiscovery().removeObserver(deviceObserver);
     }
 
 
@@ -303,12 +303,12 @@ public class ContentDirectoryFragment extends ListFragment implements Observer
     {
         Log.i(TAG, "Save instance state");
 
-        if (Main.upnpServiceController.getSelectedContentDirectory() == null)
+        if (MainActivity.upnpServiceController.getSelectedContentDirectory() == null)
         {
             return;
         }
 
-        savedInstanceState.putString(STATE_CONTENTDIRECTORY, Main.upnpServiceController.getSelectedContentDirectory()
+        savedInstanceState.putString(STATE_CONTENTDIRECTORY, MainActivity.upnpServiceController.getSelectedContentDirectory()
                 .getUID());
 
         if (tree != null)
@@ -339,10 +339,10 @@ public class ContentDirectoryFragment extends ListFragment implements Observer
     {
         if (tree == null || tree.isEmpty())
         {
-            if (Main.upnpServiceController.getSelectedContentDirectory() != null)
+            if (MainActivity.upnpServiceController.getSelectedContentDirectory() != null)
             {
                 // Back on device root, unselect device
-                Main.upnpServiceController.setSelectedContentDirectory(null);
+                MainActivity.upnpServiceController.setSelectedContentDirectory(null);
                 return false;
             }
             else
@@ -362,8 +362,8 @@ public class ContentDirectoryFragment extends ListFragment implements Observer
 
     public void printCurrentContentDirectoryInfo()
     {
-        Log.i(TAG, "Device : " + Main.upnpServiceController.getSelectedContentDirectory().getDisplayString());
-        Main.upnpServiceController.getSelectedContentDirectory().printService();
+        Log.i(TAG, "Device : " + MainActivity.upnpServiceController.getSelectedContentDirectory().getDisplayString());
+        MainActivity.upnpServiceController.getSelectedContentDirectory().printService();
     }
 
     public class RefreshCallback implements Callable<Void>
@@ -455,7 +455,7 @@ public class ContentDirectoryFragment extends ListFragment implements Observer
         // Update search visibility
         updateSearchVisibility();
 
-        if (Main.upnpServiceController.getSelectedContentDirectory() == null)
+        if (MainActivity.upnpServiceController.getSelectedContentDirectory() == null)
         {
             // List here the content directory devices
             setEmptyText(getString(R.string.device_list_empty));
@@ -468,7 +468,7 @@ public class ContentDirectoryFragment extends ListFragment implements Observer
             }
 
             // Fill with the content directory list
-            final Collection<IUpnpDevice> upnpDevices = Main.upnpServiceController.getServiceListener()
+            final Collection<IUpnpDevice> upnpDevices = MainActivity.upnpServiceController.getServiceListener()
                     .getFilteredDeviceList(new CallableContentDirectoryFilter());
 
             ArrayList<DIDLObjectDisplay> list = new ArrayList<DIDLObjectDisplay>();
@@ -494,18 +494,18 @@ public class ContentDirectoryFragment extends ListFragment implements Observer
         Log.i(TAG, "device " + device + " device " + ((device != null) ? device.getDisplayString() : ""));
         Log.i(TAG, "contentDirectoryCommand : " + contentDirectoryCommand);
 
-        contentDirectoryCommand = Main.factory.createContentDirectoryCommand();
+        contentDirectoryCommand = MainActivity.factory.createContentDirectoryCommand();
         if (contentDirectoryCommand == null)
         {
             return; // Can't do anything if upnp not ready
         }
 
-        if (device == null || !device.equals(Main.upnpServiceController.getSelectedContentDirectory()))
+        if (device == null || !device.equals(MainActivity.upnpServiceController.getSelectedContentDirectory()))
         {
-            device = Main.upnpServiceController.getSelectedContentDirectory();
+            device = MainActivity.upnpServiceController.getSelectedContentDirectory();
 
             Log.i(TAG, "Content directory changed !!! "
-                    + Main.upnpServiceController.getSelectedContentDirectory().getDisplayString());
+                    + MainActivity.upnpServiceController.getSelectedContentDirectory().getDisplayString());
 
             tree = new LinkedList<String>();
 
@@ -539,7 +539,7 @@ public class ContentDirectoryFragment extends ListFragment implements Observer
         {
             if (didl instanceof DIDLDevice)
             {
-                Main.upnpServiceController.setSelectedContentDirectory(((DIDLDevice) didl).getDevice(), false);
+                MainActivity.upnpServiceController.setSelectedContentDirectory(((DIDLDevice) didl).getDevice(), false);
 
                 // Refresh display
                 refresh();
@@ -576,7 +576,7 @@ public class ContentDirectoryFragment extends ListFragment implements Observer
 
     private void launchURI(final IDIDLItem uri)
     {
-        if (Main.upnpServiceController.getSelectedRenderer() == null)
+        if (MainActivity.upnpServiceController.getSelectedRenderer() == null)
         {
             // No renderer selected yet, open a popup to select one
             final Activity a = getActivity();
@@ -619,7 +619,7 @@ public class ContentDirectoryFragment extends ListFragment implements Observer
 
     private void launchURIRenderer(IDIDLItem uri)
     {
-        IRendererCommand rendererCommand = Main.factory.createRendererCommand(Main.factory.createRendererState());
+        IRendererCommand rendererCommand = MainActivity.factory.createRendererCommand(MainActivity.factory.createRendererState());
         rendererCommand.launchItem(uri);
     }
 

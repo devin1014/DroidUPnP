@@ -37,7 +37,7 @@ import android.widget.Toast;
 
 import com.android.liuwei.droidupnp.R;
 
-import org.droidupnp.Main;
+import org.droidupnp.MainActivity;
 import org.droidupnp.model.cling.RendererState;
 import org.droidupnp.model.upnp.ARendererState;
 import org.droidupnp.model.upnp.IRendererCommand;
@@ -103,9 +103,9 @@ public class RendererFragment extends Fragment implements Observer
         super.onActivityCreated(savedInstanceState);
 
         // Listen to renderer change
-        if (Main.upnpServiceController != null)
+        if (MainActivity.upnpServiceController != null)
         {
-            Main.upnpServiceController.addSelectedRendererObserver(this);
+            MainActivity.upnpServiceController.addSelectedRendererObserver(this);
         }
         else
         {
@@ -151,7 +151,7 @@ public class RendererFragment extends Fragment implements Observer
     @Override
     public void onDestroy()
     {
-        Main.upnpServiceController.delSelectedRendererObserver(this);
+        MainActivity.upnpServiceController.delSelectedRendererObserver(this);
         super.onDestroy();
     }
 
@@ -163,7 +163,7 @@ public class RendererFragment extends Fragment implements Observer
 
     public void startControlPoint()
     {
-        if (Main.upnpServiceController.getSelectedRenderer() == null)
+        if (MainActivity.upnpServiceController.getSelectedRenderer() == null)
         {
             if (device != null)
             {
@@ -196,14 +196,14 @@ public class RendererFragment extends Fragment implements Observer
         }
 
         if (device == null || rendererState == null || rendererCommand == null
-                || !device.equals(Main.upnpServiceController.getSelectedRenderer()))
+                || !device.equals(MainActivity.upnpServiceController.getSelectedRenderer()))
         {
-            device = Main.upnpServiceController.getSelectedRenderer();
+            device = MainActivity.upnpServiceController.getSelectedRenderer();
 
-            Log.i(TAG, "Renderer changed !!! " + Main.upnpServiceController.getSelectedRenderer().getDisplayString());
+            Log.i(TAG, "Renderer changed !!! " + MainActivity.upnpServiceController.getSelectedRenderer().getDisplayString());
 
-            rendererState = Main.factory.createRendererState();
-            rendererCommand = Main.factory.createRendererCommand(rendererState);
+            rendererState = MainActivity.factory.createRendererState();
+            rendererCommand = MainActivity.factory.createRendererCommand(rendererState);
 
             if (rendererState == null || rendererCommand == null)
             {

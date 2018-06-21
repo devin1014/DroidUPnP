@@ -32,7 +32,6 @@ import java.util.Observer;
 
 public abstract class UpnpServiceController implements IUpnpServiceController
 {
-
     private static final String TAG = "UpnpServiceController";
 
     protected IUpnpDevice renderer;
@@ -43,18 +42,6 @@ public abstract class UpnpServiceController implements IUpnpServiceController
 
     private final ContentDirectoryDiscovery contentDirectoryDiscovery;
     private final RendererDiscovery rendererDiscovery;
-
-    @Override
-    public ContentDirectoryDiscovery getContentDirectoryDiscovery()
-    {
-        return contentDirectoryDiscovery;
-    }
-
-    @Override
-    public RendererDiscovery getRendererDiscovery()
-    {
-        return rendererDiscovery;
-    }
 
     protected UpnpServiceController()
     {
@@ -94,14 +81,25 @@ public abstract class UpnpServiceController implements IUpnpServiceController
     public void setSelectedContentDirectory(IUpnpDevice contentDirectory, boolean force)
     {
         // Skip if no change and no force
-        if (!force && contentDirectory != null && this.contentDirectory != null
-                && this.contentDirectory.equals(contentDirectory))
+        if (!force && contentDirectory != null && this.contentDirectory != null && this.contentDirectory.equals(contentDirectory))
         {
             return;
         }
 
         this.contentDirectory = contentDirectory;
         contentDirectoryObservable.notifyAllObservers();
+    }
+
+    @Override
+    public ContentDirectoryDiscovery getContentDirectoryDiscovery()
+    {
+        return contentDirectoryDiscovery;
+    }
+
+    @Override
+    public RendererDiscovery getRendererDiscovery()
+    {
+        return rendererDiscovery;
     }
 
     @Override

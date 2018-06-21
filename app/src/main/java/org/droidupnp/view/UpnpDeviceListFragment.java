@@ -30,7 +30,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.ListView;
 
 import com.android.liuwei.droidupnp.R;
 
@@ -39,12 +38,11 @@ import org.droidupnp.model.upnp.IUpnpDevice;
 
 public abstract class UpnpDeviceListFragment extends ListFragment implements IDeviceDiscoveryObserver
 {
-
     protected static final String TAG = "UpnpDeviceListFragment";
 
-    protected ArrayAdapter<DeviceDisplay> list;
+    private ArrayAdapter<DeviceDisplay> mListAdapter;
 
-    private final boolean extendedInformation;
+    private final boolean mExtendedInformation;
 
     public UpnpDeviceListFragment()
     {
@@ -53,23 +51,21 @@ public abstract class UpnpDeviceListFragment extends ListFragment implements IDe
 
     public UpnpDeviceListFragment(boolean extendedInformation)
     {
-        this.extendedInformation = extendedInformation;
+        mExtendedInformation = extendedInformation;
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState)
     {
         super.onActivityCreated(savedInstanceState);
-        list = new ArrayAdapter<>(this.getView().getContext(), R.layout.device_list_item);
-        setListAdapter(list);
-
         Log.d(TAG, "Activity created");
+        mListAdapter = new ArrayAdapter<>(getActivity(), R.layout.device_list_item);
+        setListAdapter(mListAdapter);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.sub_device_fragment, container, false);
     }
 
@@ -83,13 +79,13 @@ public abstract class UpnpDeviceListFragment extends ListFragment implements IDe
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState)
     {
-        this.getListView().setOnItemLongClickListener(new OnItemLongClickListener()
+        getListView().setOnItemLongClickListener(new OnItemLongClickListener()
         {
-
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id)
             {
                 showInfoDialog(position);
+
                 return true;
             }
         });
@@ -97,9 +93,12 @@ public abstract class UpnpDeviceListFragment extends ListFragment implements IDe
 
     private void showInfoDialog(int position)
     {
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
-        DialogFragment newFragment = DeviceInfoDialog.newInstance(list.getItem(position));
-        newFragment.show(ft, "dialog");
+        if (mListAdapter != null && mListAdapter.getItem(position) != null)
+        {
+            FragmentTransaction transaction = getFragmentManager().beginTransaction();
+            DialogFragment fragment = DeviceInfoDialog.newInstance(mListAdapter.getItem(position));
+            fragment.show(transaction, "dialog");
+        }
     }
 
     @Override
@@ -110,17 +109,11 @@ public abstract class UpnpDeviceListFragment extends ListFragment implements IDe
     }
 
     @Override
-    public void onListItemClick(ListView l, View v, int position, long id)
-    {
-        super.onListItemClick(l, v, position, id);
-    }
-
-    @Override
     public void addedDevice(IUpnpDevice device)
     {
         Log.v(TAG, "New device detected : " + device.getDisplayString());
 
-        final DeviceDisplay d = new DeviceDisplay(device, extendedInformation);
+        final DeviceDisplay d = new DeviceDisplay(device, mExtendedInformation);
 
         if (getActivity() != null) // Visible
         {
@@ -131,20 +124,20 @@ public abstract class UpnpDeviceListFragment extends ListFragment implements IDe
                 {
                     try
                     {
-                        int position = list.getPosition(d);
+                        int position = mListAdapter.getPosition(d);
                         if (position >= 0)
                         {
-                            // Device already in the list, re-set new value at same position
-                            list.remove(d);
-                            list.insert(d, position);
+                            // Device already in the mListAdapter, re-set new value at same position
+                            mListAdapter.remove(d);
+                            mListAdapter.insert(d, position);
                         }
                         else
                         {
-                            list.add(d);
+                            mListAdapter.add(d);
                         }
                         if (isSelected(d.getDevice()))
                         {
-                            position = list.getPosition(d);
+                            position = mListAdapter.getPosition(d);
                             getListView().setItemChecked(position, true);
 
                             Log.i(TAG, d.toString() + " is selected at position " + position);
@@ -164,7 +157,7 @@ public abstract class UpnpDeviceListFragment extends ListFragment implements IDe
     {
         Log.v(TAG, "Device removed : " + device.getFriendlyName());
 
-        final DeviceDisplay d = new DeviceDisplay(device, extendedInformation);
+        final DeviceDisplay d = new DeviceDisplay(device, mExtendedInformation);
 
         if (getActivity() != null) // Visible
         {
@@ -175,8 +168,8 @@ public abstract class UpnpDeviceListFragment extends ListFragment implements IDe
                 {
                     try
                     {
-                        // Remove device from list
-                        list.remove(d);
+                        // Remove device from mListAdapter
+                        mListAdapter.remove(d);
                     }
                     catch (Exception e)
                     {
@@ -187,26 +180,23 @@ public abstract class UpnpDeviceListFragment extends ListFragment implements IDe
         }
     }
 
+    public ArrayAdapter<DeviceDisplay> getListAdapter()
+    {
+        return mListAdapter;
+    }
+
     /**
      * Filter to know if device is selected
-     *
-     * @param d
-     * @return
      */
-    protected abstract boolean isSelected(IUpnpDevice d);
+    protected abstract boolean isSelected(IUpnpDevice upnpDevice);
 
     /**
      * Select a device
-     *
-     * @param device
      */
-    protected abstract void select(IUpnpDevice device);
+    protected abstract void select(IUpnpDevice upnpDevice);
 
     /**
      * Select a device
-     *
-     * @param device
-     * @param force
      */
-    protected abstract void select(IUpnpDevice device, boolean force);
+    protected abstract void select(IUpnpDevice upnpDevice, boolean force);
 }

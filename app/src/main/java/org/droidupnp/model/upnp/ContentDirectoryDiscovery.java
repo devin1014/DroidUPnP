@@ -19,11 +19,10 @@
 
 package org.droidupnp.model.upnp;
 
-import org.droidupnp.Main;
+import org.droidupnp.MainActivity;
 
 public class ContentDirectoryDiscovery extends DeviceDiscovery
 {
-
     protected static final String TAG = "ContentDirectoryDeviceFragment";
 
     public ContentDirectoryDiscovery(IServiceListener serviceListener)
@@ -40,9 +39,9 @@ public class ContentDirectoryDiscovery extends DeviceDiscovery
     @Override
     protected boolean isSelected(IUpnpDevice device)
     {
-        if (Main.upnpServiceController != null && Main.upnpServiceController.getSelectedContentDirectory() != null)
+        if (MainActivity.upnpServiceController != null && MainActivity.upnpServiceController.getSelectedContentDirectory() != null)
         {
-            return device.equals(Main.upnpServiceController.getSelectedContentDirectory());
+            return device.equals(MainActivity.upnpServiceController.getSelectedContentDirectory());
         }
 
         return false;
@@ -57,16 +56,16 @@ public class ContentDirectoryDiscovery extends DeviceDiscovery
     @Override
     protected void select(IUpnpDevice device, boolean force)
     {
-        Main.upnpServiceController.setSelectedContentDirectory(device, force);
+        MainActivity.upnpServiceController.setSelectedContentDirectory(device, force);
     }
 
     @Override
     protected void removed(IUpnpDevice d)
     {
-        if (Main.upnpServiceController != null && Main.upnpServiceController.getSelectedContentDirectory() != null
-                && d.equals(Main.upnpServiceController.getSelectedContentDirectory()))
+        if (MainActivity.upnpServiceController != null && MainActivity.upnpServiceController.getSelectedContentDirectory() != null
+                && d.equals(MainActivity.upnpServiceController.getSelectedContentDirectory()))
         {
-            Main.upnpServiceController.setSelectedContentDirectory(null);
+            MainActivity.upnpServiceController.setSelectedContentDirectory(null);
         }
     }
 }

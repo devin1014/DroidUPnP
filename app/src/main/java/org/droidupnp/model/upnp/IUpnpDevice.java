@@ -21,7 +21,6 @@ package org.droidupnp.model.upnp;
 
 public interface IUpnpDevice
 {
-
     public String getDisplayString();
 
     public String getFriendlyName();
