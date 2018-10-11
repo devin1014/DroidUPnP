@@ -48,6 +48,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity
 {
@@ -236,12 +237,12 @@ public class MainActivity extends AppCompatActivity
 
     public static InetAddress getLocalIpAddress(Context ctx) throws UnknownHostException
     {
-        WifiManager wifiManager = (WifiManager) ctx.getSystemService(Context.WIFI_SERVICE);
+        WifiManager wifiManager = (WifiManager) ctx.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         WifiInfo wifiInfo = wifiManager.getConnectionInfo();
         int ipAddress = wifiInfo.getIpAddress();
         if (ipAddress != 0)
         {
-            return InetAddress.getByName(String.format("%d.%d.%d.%d",
+            return InetAddress.getByName(String.format(Locale.US, "%d.%d.%d.%d",
                     (ipAddress & 0xff), (ipAddress >> 8 & 0xff),
                     (ipAddress >> 16 & 0xff), (ipAddress >> 24 & 0xff)));
         }

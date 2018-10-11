@@ -34,7 +34,6 @@ import org.fourthline.cling.controlpoint.ControlPoint;
 
 public class Factory implements IFactory
 {
-
     @Override
     public IContentDirectoryCommand createContentDirectoryCommand()
     {

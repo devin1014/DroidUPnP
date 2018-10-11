@@ -25,17 +25,20 @@ import java.util.Collection;
 
 public interface IServiceListener
 {
+    //listener
     public void addListener(IRegistryListener registryListener);
 
     public void removeListener(IRegistryListener registryListener);
 
     public void clearListener();
 
-    public void refresh();
-
+    //device
     public Collection<IUpnpDevice> getDeviceList();
 
     public Collection<IUpnpDevice> getFilteredDeviceList(ICallableFilter filter);
 
+    //service connexion
     public ServiceConnection getServiceConnexion();
+
+    public void refresh();
 }

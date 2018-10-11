@@ -25,20 +25,58 @@ import android.content.Intent;
 import android.util.Log;
 
 import org.droidupnp.model.cling.UpnpService;
-import org.droidupnp.model.cling.UpnpServiceController;
+import org.droidupnp.model.cling.BaseUpnpServiceController;
 import org.fourthline.cling.model.meta.LocalDevice;
 
-public class ServiceController extends UpnpServiceController
+public class ServiceController extends BaseUpnpServiceController
 {
     private static final String TAG = "Cling.ServiceController";
 
-    private final ServiceListener upnpServiceListener;
-    private Activity activity = null;
+    private Activity mActivity = null;
+    private final ServiceListener mUpnpServiceListener;
 
     public ServiceController(Context ctx)
     {
         super();
-        upnpServiceListener = new ServiceListener(ctx);
+
+        mUpnpServiceListener = new ServiceListener(ctx);
+    }
+
+    @Override
+    public ServiceListener getServiceListener()
+    {
+        return mUpnpServiceListener;
+    }
+
+    @Override
+    public void addDevice(LocalDevice localDevice)
+    {
+        mUpnpServiceListener.getUpnpService().getRegistry().addDevice(localDevice);
+    }
+
+    @Override
+    public void removeDevice(LocalDevice localDevice)
+    {
+        mUpnpServiceListener.getUpnpService().getRegistry().removeDevice(localDevice);
+    }
+
+    @Override
+    public void pause()
+    {
+        super.pause();
+        mActivity.unbindService(mUpnpServiceListener.getServiceConnexion());
+        mActivity = null;
+    }
+
+    @Override
+    public void resume(Activity activity)
+    {
+        super.resume(activity);
+        Log.d(TAG, "Start upnp service");
+
+        mActivity = activity;
+        // This will start the UPnP service if it wasn't already started
+        activity.bindService(new Intent(activity, UpnpService.class), mUpnpServiceListener.getServiceConnexion(), Context.BIND_AUTO_CREATE);
     }
 
     @Override
@@ -46,42 +84,4 @@ public class ServiceController extends UpnpServiceController
     {
         pause();
     }
-
-    @Override
-    public ServiceListener getServiceListener()
-    {
-        return upnpServiceListener;
-    }
-
-    @Override
-    public void pause()
-    {
-        super.pause();
-        activity.unbindService(upnpServiceListener.getServiceConnexion());
-        activity = null;
-    }
-
-    @Override
-    public void resume(Activity activity)
-    {
-        super.resume(activity);
-        this.activity = activity;
-
-        // This will start the UPnP service if it wasn't already started
-        Log.d(TAG, "Start upnp service");
-        activity.bindService(new Intent(activity, UpnpService.class), upnpServiceListener.getServiceConnexion(), Context.BIND_AUTO_CREATE);
-    }
-
-    @Override
-    public void addDevice(LocalDevice localDevice)
-    {
-        upnpServiceListener.getUpnpService().getRegistry().addDevice(localDevice);
-    }
-
-    @Override
-    public void removeDevice(LocalDevice localDevice)
-    {
-        upnpServiceListener.getUpnpService().getRegistry().removeDevice(localDevice);
-    }
-
 }

@@ -71,8 +71,7 @@ public class MediaServer extends fi.iki.elonen.SimpleWebServer
         localService = new AnnotationLocalServiceBinder()
                 .read(ContentDirectoryService.class);
 
-        localService.setManager(new DefaultServiceManager<ContentDirectoryService>(
-                localService, ContentDirectoryService.class));
+        localService.setManager(new DefaultServiceManager<>(localService, ContentDirectoryService.class));
 
         udn = UDN.valueOf(new UUID(0, 10).toString());
         this.localAddress = localAddress;

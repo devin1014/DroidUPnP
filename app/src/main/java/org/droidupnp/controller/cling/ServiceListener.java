@@ -45,54 +45,114 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 
-@SuppressWarnings("rawtypes")
 public class ServiceListener implements IServiceListener
 {
     private static final String TAG = "Cling.ServiceListener";
 
-    protected AndroidUpnpService upnpService;
-    protected ArrayList<IRegistryListener> waitingListener;
+    private AndroidUpnpService mAndroidUpnpService;
+    private ArrayList<IRegistryListener> mWaitingListener;
 
-    private MediaServer mediaServer = null;
-    private Context ctx = null;
+    private Context mContext;
+    private MediaServer mMediaServer = null;
 
-    public ServiceListener(Context ctx)
+    ServiceListener(Context ctx)
     {
-        waitingListener = new ArrayList<IRegistryListener>();
-        this.ctx = ctx;
+        mContext = ctx;
+        mWaitingListener = new ArrayList<>();
+    }
+
+    // ------------------------------------------------------------------------------
+    // ---- listener
+    // ------------------------------------------------------------------------------
+    @Override
+    public void addListener(IRegistryListener registryListener)
+    {
+        Log.d(TAG, "addListener:" + registryListener);
+
+        if (mAndroidUpnpService != null)
+        {
+            addListenerSafe(registryListener);
+        }
+        else
+        {
+            mWaitingListener.add(registryListener);
+        }
+    }
+
+    private void addListenerSafe(IRegistryListener registryListener)
+    {
+        Log.d(TAG, "Add Listener Safe !");
+
+        // Get ready for future device advertisements
+        mAndroidUpnpService.getRegistry().addListener(new CRegistryListener(registryListener));
+
+        // Now add all devices to the list we already know about
+        for (Device device : mAndroidUpnpService.getRegistry().getDevices())
+        {
+            registryListener.deviceAdded(new CDevice(device));
+        }
     }
 
     @Override
-    public void refresh()
+    public void removeListener(IRegistryListener registryListener)
     {
-        upnpService.getControlPoint().search();
+        Log.d(TAG, "remove listener");
+
+        if (mAndroidUpnpService != null)
+        {
+            removeListenerSafe(registryListener);
+        }
+        else
+        {
+            mWaitingListener.remove(registryListener);
+        }
     }
 
+    private void removeListenerSafe(IRegistryListener registryListener)
+    {
+        Log.d(TAG, "remove listener Safe");
+
+        mAndroidUpnpService.getRegistry().removeListener(new CRegistryListener(registryListener));
+    }
+
+    @Override
+    public void clearListener()
+    {
+        mWaitingListener.clear();
+    }
+
+    // ------------------------------------------------------------------------------
+    // ---- device
+    // ------------------------------------------------------------------------------
     @Override
     public Collection<IUpnpDevice> getDeviceList()
     {
-        ArrayList<IUpnpDevice> deviceList = new ArrayList<IUpnpDevice>();
-        if (upnpService != null && upnpService.getRegistry() != null)
+        ArrayList<IUpnpDevice> deviceList = new ArrayList<>();
+
+        if (mAndroidUpnpService != null && mAndroidUpnpService.getRegistry() != null)
         {
-            for (Device device : upnpService.getRegistry().getDevices())
+            for (Device device : mAndroidUpnpService.getRegistry().getDevices())
             {
                 deviceList.add(new CDevice(device));
             }
         }
+
         return deviceList;
     }
 
     @Override
     public Collection<IUpnpDevice> getFilteredDeviceList(ICallableFilter filter)
     {
-        ArrayList<IUpnpDevice> deviceList = new ArrayList<IUpnpDevice>();
+        ArrayList<IUpnpDevice> deviceList = new ArrayList<>();
+
         try
         {
-            if (upnpService != null && upnpService.getRegistry() != null)
+            if (mAndroidUpnpService != null && mAndroidUpnpService.getRegistry() != null)
             {
-                for (Device device : upnpService.getRegistry().getDevices())
+                for (Device device : mAndroidUpnpService.getRegistry().getDevices())
                 {
                     IUpnpDevice upnpDevice = new CDevice(device);
+
                     filter.setDevice(upnpDevice);
 
                     if (filter.call())
@@ -109,31 +169,55 @@ public class ServiceListener implements IServiceListener
         return deviceList;
     }
 
-    protected ServiceConnection serviceConnection = new ServiceConnection()
+    @Override
+    public ServiceConnection getServiceConnexion()
     {
+        return mServiceConnection;
+    }
 
+    public AndroidUpnpService getUpnpService()
+    {
+        return mAndroidUpnpService;
+    }
+
+    @Override
+    public void refresh()
+    {
+        if (mAndroidUpnpService != null)
+        {
+            mAndroidUpnpService.getControlPoint().search();
+        }
+    }
+
+    // ------------------------------------------------------------------------------
+    // ---- ServiceConnection
+    // ------------------------------------------------------------------------------
+    private ServiceConnection mServiceConnection = new ServiceConnection()
+    {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service)
         {
-            Log.i(TAG, "Service connexion");
-            upnpService = (AndroidUpnpService) service;
+            Log.i(TAG, "ServiceConnection onServiceConnected");
 
-            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(ctx);
+            mAndroidUpnpService = (AndroidUpnpService) service;
+
+            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
+
             if (sharedPref.getBoolean(SettingsActivity.CONTENTDIRECTORY_SERVICE, true))
             {
                 try
                 {
                     // Local content directory
-                    if (mediaServer == null)
+                    if (mMediaServer == null)
                     {
-                        mediaServer = new MediaServer(MainActivity.getLocalIpAddress(ctx), ctx);
-                        mediaServer.start();
+                        mMediaServer = new MediaServer(MainActivity.getLocalIpAddress(mContext), mContext);
+                        mMediaServer.start();
                     }
                     else
                     {
-                        mediaServer.restart();
+                        mMediaServer.restart();
                     }
-                    upnpService.getRegistry().addDevice(mediaServer.getDevice());
+                    mAndroidUpnpService.getRegistry().addDevice(mMediaServer.getDevice());
                 }
                 catch (UnknownHostException e1)
                 {
@@ -151,93 +235,26 @@ public class ServiceListener implements IServiceListener
                     Log.e(TAG, "exception", e3);
                 }
             }
-            else if (mediaServer != null)
+            else if (mMediaServer != null)
             {
-                mediaServer.stop();
-                mediaServer = null;
+                mMediaServer.stop();
+                mMediaServer = null;
             }
 
-            for (IRegistryListener registryListener : waitingListener)
+            for (IRegistryListener registryListener : mWaitingListener)
             {
                 addListenerSafe(registryListener);
             }
 
             // Search asynchronously for all devices, they will respond soon
-            upnpService.getControlPoint().search();
+            mAndroidUpnpService.getControlPoint().search();
         }
 
         @Override
         public void onServiceDisconnected(ComponentName className)
         {
             Log.i(TAG, "Service disconnected");
-            upnpService = null;
+            mAndroidUpnpService = null;
         }
     };
-
-    @Override
-    public ServiceConnection getServiceConnexion()
-    {
-        return serviceConnection;
-    }
-
-    public AndroidUpnpService getUpnpService()
-    {
-        return upnpService;
-    }
-
-    @Override
-    public void addListener(IRegistryListener registryListener)
-    {
-        Log.d(TAG, "Add Listener !");
-        if (upnpService != null)
-        {
-            addListenerSafe(registryListener);
-        }
-        else
-        {
-            waitingListener.add(registryListener);
-        }
-    }
-
-    private void addListenerSafe(IRegistryListener registryListener)
-    {
-        assert upnpService != null;
-        Log.d(TAG, "Add Listener Safe !");
-
-        // Get ready for future device advertisements
-        upnpService.getRegistry().addListener(new CRegistryListener(registryListener));
-
-        // Now add all devices to the list we already know about
-        for (Device device : upnpService.getRegistry().getDevices())
-        {
-            registryListener.deviceAdded(new CDevice(device));
-        }
-    }
-
-    @Override
-    public void removeListener(IRegistryListener registryListener)
-    {
-        Log.d(TAG, "remove listener");
-        if (upnpService != null)
-        {
-            removeListenerSafe(registryListener);
-        }
-        else
-        {
-            waitingListener.remove(registryListener);
-        }
-    }
-
-    private void removeListenerSafe(IRegistryListener registryListener)
-    {
-        assert upnpService != null;
-        Log.d(TAG, "remove listener Safe");
-        upnpService.getRegistry().removeListener(new CRegistryListener(registryListener));
-    }
-
-    @Override
-    public void clearListener()
-    {
-        waitingListener.clear();
-    }
 }
